@@ -34,7 +34,7 @@ var config = {
       password: '8489770cceb6990c72230ddd19efe3c2'
     },
     server: {
-      port: 80
+      port: 8080
     }
   }
 };
