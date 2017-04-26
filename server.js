@@ -17,8 +17,9 @@ function initRedisConnection(){
 
   redisCllient = redis.createClient(connectionString);
   redisCllient.on("ready", function () {
-    server.listen(config.server.port);
-    console.log('listening on port ' + config.server.port);
+    var port = process.env.PORT || config.server.port;
+    server.listen(port);
+    console.log('listening on port ' + port);
   });
   redisCllient.on("error", function (error) {
     console.log("Error " + error);
