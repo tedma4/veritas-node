@@ -1,10 +1,31 @@
 var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-//var redis = require("redis"),
-//    client = redis.createClient("redis://redistogo:8489770cceb6990c72230ddd19efe3c2@barreleye.redistogo.com:10221/");
+var MongoClient = require('mongodb').MongoClient;
+var redis = require("redis");
 
-server.listen(80);
+/*Stablish connection to DB*/
+var database, redisCllient;
+function initRedisConnection(){
+  redisCllient = redis.createClient("redis://redistogo:8489770cceb6990c72230ddd19efe3c2@barreleye.redistogo.com:10221/");
+  redisCllient.on("ready", function () {
+    server.listen(80);
+    console.log('listening on port 80');
+  });
+  redisCllient.on("error", function (error) {
+    console.log("Error " + error);
+  });
+}
+
+function initMongoConnection(){
+  MongoClient.connect('mongodb://tedma4:tm671216@ds133428.mlab.com:33428/veritas_db', (error, db) => {
+    if (error) return console.log(error);
+    database = db;
+    initRedisConnection();
+  });
+}
+
+initMongoConnection();
 
 var fileOptions = {
   root: __dirname,
@@ -31,11 +52,15 @@ chatNamespace.on('connection', function(socket){
   console.log('someone connected');
   socket.on('message', function(messageData){
     socket.to(messageData.message.chat_id).emit('message', messageData.message);
+    var message = messageData.message;
+    message.time_stamp = new Date(message.time_stamp);
+    database.collection('messages').save(message, (error, result) => {
+      if (error) return console.log(error);
+    });    
   });
   socket.on('joinChat', function (chatData) {
-    console.log(chatData);
     socket.join(chatData.chatId);
-//    client.sadd(('users:' + chatData.chatId), chatData.userId);
+    client.sadd(('users:' + chatData.chatId), chatData.userId);
   })
 });
 
