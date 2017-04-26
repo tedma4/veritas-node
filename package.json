@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Node Server that will handle chat communications using socket-io.",
   "main": "server.js",
+  "engines": {
+    "node": "5.2.0"
+  },
   "dependencies": {
     "express": "^4.15.2",
     "mongodb": "^2.2.26",
