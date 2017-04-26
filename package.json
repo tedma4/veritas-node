@@ -1,0 +1,24 @@
+{
+  "name": "chat-server",
+  "version": "1.0.0",
+  "description": "Node Server that will handle chat communications using socket-io.",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.15.2",
+    "mongodb": "^2.2.26",
+    "redis": "^2.7.1",
+    "socket.io": "^1.7.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "socket",
+    "io",
+    "chat"
+  ],
+  "author": "Vinicio Del Toro",
+  "license": "MIT"
+}
