@@ -4,13 +4,21 @@ var io = require('socket.io')(server);
 var MongoClient = require('mongodb').MongoClient;
 var redis = require("redis");
 
+var env = process.env.NODE_ENV || 'development';
+var config = require('./config')[env];
+
 /*Stablish connection to DB*/
 var database, redisCllient;
 function initRedisConnection(){
-  redisCllient = redis.createClient("redis://redistogo:8489770cceb6990c72230ddd19efe3c2@barreleye.redistogo.com:10221/");
+  var redisConfiguration = config.redisDatabase;
+  var connectionString = 'redis://'+ redisConfiguration.username +':'
+  + redisConfiguration.password +'@'+  redisConfiguration.host +':'
+  + redisConfiguration.port +'/'+ redisConfiguration.db;
+
+  redisCllient = redis.createClient(connectionString);
   redisCllient.on("ready", function () {
-    server.listen(80);
-    console.log('listening on port 80');
+    server.listen(config.server.port);
+    console.log('listening on port ' + config.server.port);
   });
   redisCllient.on("error", function (error) {
     console.log("Error " + error);
@@ -18,7 +26,12 @@ function initRedisConnection(){
 }
 
 function initMongoConnection(){
-  MongoClient.connect('mongodb://tedma4:tm671216@ds133428.mlab.com:33428/veritas_db', (error, db) => {
+  var mongoConfiguration = config.mongoDatabase;
+  var connectionString = 'mongodb://'+ mongoConfiguration.username +':'
+  + mongoConfiguration.password +'@'+  mongoConfiguration.host +':'
+  + mongoConfiguration.port +'/'+ mongoConfiguration.db;
+
+  MongoClient.connect(connectionString, (error, db) => {
     if (error) return console.log(error);
     database = db;
     initRedisConnection();
@@ -60,7 +73,7 @@ chatNamespace.on('connection', function(socket){
   });
   socket.on('joinChat', function (chatData) {
     socket.join(chatData.chatId);
-    client.sadd(('users:' + chatData.chatId), chatData.userId);
+    redisCllient.sadd(('users:' + chatData.chatId), chatData.userId);
   })
 });
 
